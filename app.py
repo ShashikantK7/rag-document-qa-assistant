@@ -8,28 +8,36 @@ from src.rag_pipeline import generate_answer
 st.set_page_config(page_title='RAG Document Q&A Assistant')
 
 st.title('📄 RAG Document Q&A Assistant')
+st.caption('Upload a PDF and ask questions using Gemini + RAG')
+
+if not GOOGLE_API_KEY:
+    st.error('GOOGLE_API_KEY not found. Create a .env file using .env.example')
+    st.stop()
 
 uploaded_file = st.file_uploader('Upload a PDF', type=['pdf'])
 
 if uploaded_file:
-    text = extract_text_from_pdf(uploaded_file)
-    chunks = create_chunks(text)
+    try:
+        text = extract_text_from_pdf(uploaded_file)
+        chunks = create_chunks(text)
 
-    vector_store = create_vector_store(
-        chunks,
-        GOOGLE_API_KEY
-    )
+        st.info(f'Document split into {len(chunks)} chunks')
 
-    st.success('Document processed successfully!')
+        vector_store = create_vector_store(chunks, GOOGLE_API_KEY)
 
-    question = st.text_input('Ask a question about the document')
+        st.success('Document processed successfully!')
 
-    if question:
-        answer = generate_answer(
-            vector_store,
-            question,
-            GOOGLE_API_KEY
-        )
+        question = st.text_input('Ask a question about the document')
 
-        st.subheader('Answer')
-        st.write(answer)
+        if question:
+            answer = generate_answer(
+                vector_store,
+                question,
+                GOOGLE_API_KEY
+            )
+
+            st.subheader('Answer')
+            st.write(answer)
+
+    except Exception as e:
+        st.error(f'Error: {str(e)}')
