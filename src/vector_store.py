@@ -3,8 +3,9 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
 def create_vector_store(chunks, api_key):
+    # Change "embedding-001" to "models/text-embedding-004"
     embeddings = GoogleGenerativeAIEmbeddings(
-        model="embedding-001",
+        model="models/text-embedding-004",
         google_api_key=api_key
     )
 
