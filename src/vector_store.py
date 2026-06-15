@@ -3,13 +3,13 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
 def create_vector_store(chunks, api_key):
-    # Fixed string format for Google Generative AI Embeddings
+    # Upgraded to an active model and restored the required 'models/' prefix
     embeddings = GoogleGenerativeAIEmbeddings(
-        model="text-embedding-004",
+        model="models/gemini-embedding-2",
         google_api_key=api_key
     )
 
-    # Removed persist_directory to use in-memory ephemeral storage
+    # In-memory ephemeral storage (from our previous caching fix)
     vector_store = Chroma.from_texts(
         texts=chunks,
         embedding=embeddings
