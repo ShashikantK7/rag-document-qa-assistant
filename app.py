@@ -14,17 +14,24 @@ if not GOOGLE_API_KEY:
     st.error('GOOGLE_API_KEY not found. Create a .env file using .env.example')
     st.stop()
 
+@st.cache_resource
+def process_and_embed_document(uploaded_file, api_key):
+    """Caches the document extraction and embedding process"""
+    # Reset file pointer in case it was read elsewhere
+    uploaded_file.seek(0)
+    text = extract_text_from_pdf(uploaded_file)
+    chunks = create_chunks(text)
+    vector_store = create_vector_store(chunks, api_key)
+    return vector_store, len(chunks)
+
 uploaded_file = st.file_uploader('Upload a PDF', type=['pdf'])
 
 if uploaded_file:
     try:
-        text = extract_text_from_pdf(uploaded_file)
-        chunks = create_chunks(text)
+        # Calls the cached function
+        vector_store, num_chunks = process_and_embed_document(uploaded_file, GOOGLE_API_KEY)
 
-        st.info(f'Document split into {len(chunks)} chunks')
-
-        vector_store = create_vector_store(chunks, GOOGLE_API_KEY)
-
+        st.info(f'Document split into {num_chunks} chunks')
         st.success('Document processed successfully!')
 
         question = st.text_input('Ask a question about the document')
